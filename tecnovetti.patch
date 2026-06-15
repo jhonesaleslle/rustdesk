@@ -9,7 +9,7 @@ diff --git a/src/config.rs b/src/config.rs
 +    pub static ref OVERWRITE_SETTINGS: RwLock<HashMap<String, String>> = RwLock::new(HashMap::from([
 +        ("custom-rendezvous-server".to_owned(), "remoto.tecnovetti.cloud".to_owned()),
 +        ("relay-server".to_owned(), "remoto.tecnovetti.cloud".to_owned()),
-+        ("key".to_owned(), "rm9J48HyHHDZWhpLbGIImqWVudDpO7ZUb6B1wHrQLbg=".to_owned()),
++        ("key".to_owned(), "DUJGieeZyZhh9y+G0YzKe8JsXhXtQ8zL5emIIx2+Gsk=".to_owned()),
 +        ("approve-mode".to_owned(), "click".to_owned()),
 +        ("verification-method".to_owned(), "use-temporary-password".to_owned()),
 +    ]));
