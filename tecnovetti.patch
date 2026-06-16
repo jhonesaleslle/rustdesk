@@ -1,8 +1,8 @@
 diff --git a/src/config.rs b/src/config.rs
-index 31811d4..7da64d1 100644
+index 31811d4..5ae9906 100644
 --- a/src/config.rs
 +++ b/src/config.rs
-@@ -58,17 +58,25 @@ lazy_static::lazy_static! {
+@@ -58,12 +58,18 @@ lazy_static::lazy_static! {
      static ref ONLINE: Mutex<HashMap<String, i64>> = Default::default();
      pub static ref PROD_RENDEZVOUS_SERVER: RwLock<String> = RwLock::new("".to_owned());
      pub static ref EXE_RENDEZVOUS_SERVER: RwLock<String> = Default::default();
@@ -23,11 +23,3 @@ index 31811d4..7da64d1 100644
      pub static ref DEFAULT_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
      pub static ref OVERWRITE_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
      pub static ref DEFAULT_LOCAL_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
-     pub static ref OVERWRITE_LOCAL_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
--    pub static ref HARD_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
-+    pub static ref HARD_SETTINGS: RwLock<HashMap<String, String>> = RwLock::new(HashMap::from([
-+        ("conn-type".to_owned(), "incoming".to_owned()),
-+    ]));
-     pub static ref BUILTIN_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
- }
- 

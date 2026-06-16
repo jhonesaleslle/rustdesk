@@ -64,11 +64,30 @@ enum SettingsTabKey {
 class DesktopSettingPage extends StatefulWidget {
   final SettingsTabKey initialTabkey;
   static final List<SettingsTabKey> tabKeys = [
-    // Tecnovetti: abas Geral/Segurança/Rede/Conta/Impressora ocultas da UI
-    // (cliente assistido não configura nada; rede já travada pelo OVERWRITE_SETTINGS).
+    // Tecnovetti: no build do CLIENTE (incoming-only) deixamos só a aba "Sobre".
+    // No build do OPERADOR (não incoming-only) todas as abas voltam normalmente.
+    // Por isso cada aba é gated em `!isIncomingOnly()` (a alternativa de remover
+    // de vez quebraria o operador).
+    if (!bind.isIncomingOnly()) SettingsTabKey.general,
+    if (!bind.isIncomingOnly() &&
+        !isWeb &&
+        !bind.isOutgoingOnly() &&
+        !bind.isDisableSettings() &&
+        bind.mainGetBuildinOption(key: kOptionHideSecuritySetting) != 'Y')
+      SettingsTabKey.safety,
+    if (!bind.isIncomingOnly() &&
+        !bind.isDisableSettings() &&
+        bind.mainGetBuildinOption(key: kOptionHideNetworkSetting) != 'Y')
+      SettingsTabKey.network,
     if (!bind.isIncomingOnly()) SettingsTabKey.display,
     if (!isWeb && !bind.isIncomingOnly() && bind.pluginFeatureIsEnabled())
       SettingsTabKey.plugin,
+    if (!bind.isIncomingOnly() && !bind.isDisableAccount())
+      SettingsTabKey.account,
+    if (!bind.isIncomingOnly() &&
+        isWindows &&
+        bind.mainGetBuildinOption(key: kOptionHideRemotePrinterSetting) != 'Y')
+      SettingsTabKey.printer,
     SettingsTabKey.about,
   ];
 

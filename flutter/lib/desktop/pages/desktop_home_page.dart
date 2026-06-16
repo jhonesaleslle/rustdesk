@@ -338,7 +338,15 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                               contentPadding:
                                   EdgeInsets.only(top: 14, bottom: 10),
                             ),
-                            style: TextStyle(fontSize: 15),
+                            // Tecnovetti: no cliente (incoming-only) a senha de
+                            // uso único fica maior e em negrito pra ler fácil.
+                            // No operador mantém o tamanho padrão.
+                            style: TextStyle(
+                              fontSize: bind.isIncomingOnly() ? 26 : 15,
+                              fontWeight: bind.isIncomingOnly()
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
                           ).workaroundFreezeLinuxMint(),
                         ),
                       ),

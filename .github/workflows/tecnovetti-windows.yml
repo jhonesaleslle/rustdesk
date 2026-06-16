@@ -9,9 +9,16 @@ on:
   workflow_dispatch:
     inputs:
       apply_patch:
-        description: "Aplicar tecnovetti.patch (servidor+key+approve-mode)?"
+        description: "Aplicar tecnovetti.patch base (servidor+key+approve-mode)?"
         type: boolean
         default: false
+      variant:
+        description: "Variante: client (incoming-only, UI enxuta) ou operator (UI completa)"
+        type: choice
+        options:
+          - client
+          - operator
+        default: client
 
 env:
   SCITER_RUST_VERSION: "1.75"
@@ -54,14 +61,23 @@ jobs:
         with:
           submodules: recursive
 
-      # >>> Patch Tecnovetti — só roda se apply_patch=true <<<
-      - name: Apply Tecnovetti patch (server + key + approve-mode)
+      # >>> Patch base (compartilhado client+operator) — só roda se apply_patch=true <<<
+      - name: Apply Tecnovetti base patch (server + key + approve-mode)
         if: ${{ inputs.apply_patch }}
         shell: bash
         run: |
           git apply -v --directory=libs/hbb_common tecnovetti.patch
           echo "=== confirmar que o OVERWRITE_SETTINGS foi alterado ==="
           grep -n "remoto.tecnovetti.cloud" libs/hbb_common/src/config.rs
+
+      # >>> Patch do CLIENTE (incoming-only) — só no variant=client, em cima do base <<<
+      - name: Apply Tecnovetti client patch (incoming-only)
+        if: ${{ inputs.apply_patch && inputs.variant == 'client' }}
+        shell: bash
+        run: |
+          git apply -v --directory=libs/hbb_common tecnovetti-client.patch
+          echo "=== confirmar conn-type=incoming (UI enxuta do cliente) ==="
+          grep -n "conn-type" libs/hbb_common/src/config.rs
 
       - name: Restore bridge files
         uses: actions/download-artifact@master
