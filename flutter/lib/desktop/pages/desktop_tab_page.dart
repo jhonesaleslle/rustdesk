@@ -97,7 +97,10 @@ class _DesktopTabPageState extends State<DesktopTabPage> {
             body: DesktopTab(
               controller: tabController,
               tail: Offstage(
-                offstage: bind.isIncomingOnly() || bind.isDisableSettings(),
+                // Tecnovetti: cliente roda em incoming-only (só é controlado),
+                // mas mantemos a engrenagem de Settings acessível para a aba
+                // "Sobre" (em incoming-only as demais abas já ficam ocultas).
+                offstage: bind.isDisableSettings(),
                 child: ActionIcon(
                   message: 'Settings',
                   icon: IconFont.menu,
