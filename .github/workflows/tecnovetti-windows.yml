@@ -150,11 +150,11 @@ jobs:
           name: topmostwindow-artifacts
           path: "./rustdesk"
 
-      # Artefato 1: a pasta ./rustdesk (rustdesk.exe roda direto — bom p/ confirmar)
+      # Artefato 1: a pasta ./rustdesk (tecnoassist.exe roda direto — bom p/ confirmar)
       - name: Upload unsigned folder
         uses: actions/upload-artifact@master
         with:
-          name: rustdesk-unsigned-windows-x86_64
+          name: tecnoassist-unsigned-windows-x86_64
           path: rustdesk
 
       # Artefato 2: o .exe portátil único (o que você distribui)
@@ -164,13 +164,13 @@ jobs:
           sed -i '/dpiAware/d' res/manifest.xml
           pushd ./libs/portable
           pip3 install -r requirements.txt
-          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/rustdesk.exe
+          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/tecnoassist.exe
           popd
           mkdir -p ./SignOutput
-          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/rustdesk-${{ env.VERSION }}-x86_64.exe
+          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/TecnoAssist-${{ env.VERSION }}-x86_64.exe
 
       - name: Upload portable exe
         uses: actions/upload-artifact@master
         with:
-          name: rustdesk-portable-windows-x86_64
-          path: ./SignOutput/rustdesk-${{ env.VERSION }}-x86_64.exe
+          name: tecnoassist-portable-windows-x86_64
+          path: ./SignOutput/TecnoAssist-${{ env.VERSION }}-x86_64.exe
