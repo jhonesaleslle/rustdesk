@@ -17,7 +17,7 @@ index 31811d4..67d6d9b 100644
 +        ("custom-rendezvous-server".to_owned(), "remoto.tecnovetti.cloud".to_owned()),
 +        ("relay-server".to_owned(), "remoto.tecnovetti.cloud".to_owned()),
 +        ("key".to_owned(), "DUJGieeZyZhh9y+G0YzKe8JsXhXtQ8zL5emIIx2+Gsk=".to_owned()),
-+        ("approve-mode".to_owned(), "click".to_owned()),
++        ("approve-mode".to_owned(), "password".to_owned()),
 +        ("verification-method".to_owned(), "use-temporary-password".to_owned()),
 +    ]));
      pub static ref DEFAULT_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
