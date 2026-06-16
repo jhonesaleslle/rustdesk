@@ -469,9 +469,17 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     }
 
     if (isWindows && !bind.isDisableInstallation()) {
-      // Tecnovetti: cliente é sempre portátil (só executa, nunca instala —
-      // suporte assistido). Card "Instalar" removido da tela inicial.
-      if (bind.mainIsInstalled() && bind.mainIsInstalledLowerVersion()) {
+      // Tecnovetti: o card "Instalar" volta SÓ no OPERADOR (queremos instalado,
+      // inicia com Windows, sempre disponível pros técnicos). No CLIENTE
+      // (incoming-only) continua portátil — nunca instala.
+      if (isTecnoOperator && !bind.mainIsInstalled()) {
+        return buildInstallCard(
+            "", bind.isOutgoingOnly() ? "" : "install_tip", "Install",
+            () async {
+          await rustDeskWinManager.closeAllSubWindows();
+          bind.mainGotoInstall();
+        });
+      } else if (bind.mainIsInstalled() && bind.mainIsInstalledLowerVersion()) {
         return buildInstallCard(
             "Status", "Your installation is lower version.", "Click to upgrade",
             () async {

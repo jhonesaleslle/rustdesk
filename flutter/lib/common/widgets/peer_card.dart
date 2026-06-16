@@ -969,8 +969,9 @@ class RecentPeerCard extends BasePeerCard {
     final List<MenuEntryBase<String>> menuItems = [
       _connectAction(context),
       _transferFileAction(context),
-      _viewCameraAction(context),
-      _terminalAction(context),
+      // Tecnovetti: operador sem View camera/Terminal.
+      if (!isTecnoOperator) _viewCameraAction(context),
+      if (!isTecnoOperator) _terminalAction(context),
     ];
 
     if (peer.platform == kPeerPlatformWindows) {
@@ -1034,8 +1035,9 @@ class FavoritePeerCard extends BasePeerCard {
     final List<MenuEntryBase<String>> menuItems = [
       _connectAction(context),
       _transferFileAction(context),
-      _viewCameraAction(context),
-      _terminalAction(context),
+      // Tecnovetti: operador sem View camera/Terminal.
+      if (!isTecnoOperator) _viewCameraAction(context),
+      if (!isTecnoOperator) _terminalAction(context),
     ];
 
     if (peer.platform == kPeerPlatformWindows) {
@@ -1094,8 +1096,9 @@ class DiscoveredPeerCard extends BasePeerCard {
     final List<MenuEntryBase<String>> menuItems = [
       _connectAction(context),
       _transferFileAction(context),
-      _viewCameraAction(context),
-      _terminalAction(context),
+      // Tecnovetti: operador sem View camera/Terminal.
+      if (!isTecnoOperator) _viewCameraAction(context),
+      if (!isTecnoOperator) _terminalAction(context),
     ];
 
     if (peer.platform == kPeerPlatformWindows) {
@@ -1153,8 +1156,9 @@ class AddressBookPeerCard extends BasePeerCard {
     final List<MenuEntryBase<String>> menuItems = [
       _connectAction(context),
       _transferFileAction(context),
-      _viewCameraAction(context),
-      _terminalAction(context),
+      // Tecnovetti: operador sem View camera/Terminal.
+      if (!isTecnoOperator) _viewCameraAction(context),
+      if (!isTecnoOperator) _terminalAction(context),
     ];
 
     if (peer.platform == kPeerPlatformWindows) {
@@ -1310,8 +1314,9 @@ class MyGroupPeerCard extends BasePeerCard {
     final List<MenuEntryBase<String>> menuItems = [
       _connectAction(context),
       _transferFileAction(context),
-      _viewCameraAction(context),
-      _terminalAction(context),
+      // Tecnovetti: operador sem View camera/Terminal.
+      if (!isTecnoOperator) _viewCameraAction(context),
+      if (!isTecnoOperator) _terminalAction(context),
     ];
 
     if (peer.platform == kPeerPlatformWindows) {

@@ -178,16 +178,20 @@ List<TTextMenu> toolbarControls(BuildContext context, String id, FFI ffi) {
           child: Text(translate('Transfer file')),
           onPressed: () => connectWithToken(isFileTransfer: true)),
     );
-    v.add(
-      TTextMenu(
-          child: Text(translate('View camera')),
-          onPressed: () => connectWithToken(isViewCamera: true)),
-    );
-    v.add(
-      TTextMenu(
-          child: Text('${translate('Terminal')} (beta)'),
-          onPressed: () => connectWithToken(isTerminal: true)),
-    );
+    // Tecnovetti: no OPERADOR removemos View camera e Terminal da barra de
+    // sessão. (O cliente é incoming-only e nunca abre sessão de controle.)
+    if (!isTecnoOperator) {
+      v.add(
+        TTextMenu(
+            child: Text(translate('View camera')),
+            onPressed: () => connectWithToken(isViewCamera: true)),
+      );
+      v.add(
+        TTextMenu(
+            child: Text('${translate('Terminal')} (beta)'),
+            onPressed: () => connectWithToken(isTerminal: true)),
+      );
+    }
     v.add(
       TTextMenu(
           child: Text(translate('TCP tunneling')),

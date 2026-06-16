@@ -3842,6 +3842,14 @@ bool get isCustomClient {
   return _isCustomClient!;
 }
 
+// Tecnovetti: dois builds saem do mesmo branch. O CLIENTE é incoming-only
+// (só é controlado); o OPERADOR é o build que NÃO é incoming-only (UI completa).
+// Centraliza essa distinção pra gatear recursos por variante: o operador
+// recebe o botão Instalar e as abas Conta/Impressora, mas NÃO tem Terminal nem
+// View camera. Como o cliente nunca controla, esses recursos nunca aparecem
+// nele de qualquer forma.
+bool get isTecnoOperator => !bind.isIncomingOnly();
+
 get defaultOptionLang => isCustomClient ? 'default' : '';
 get defaultOptionTheme => isCustomClient ? 'system' : '';
 get defaultOptionYes => isCustomClient ? 'Y' : '';

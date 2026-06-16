@@ -79,6 +79,15 @@ jobs:
           echo "=== confirmar conn-type=incoming (UI enxuta do cliente) ==="
           grep -n "conn-type" libs/hbb_common/src/config.rs
 
+      # >>> Patch do OPERADOR (api-server embutido) — só no variant=operator, em cima do base <<<
+      - name: Apply Tecnovetti operator patch (api-server)
+        if: ${{ inputs.apply_patch && inputs.variant == 'operator' }}
+        shell: bash
+        run: |
+          git apply -v --directory=libs/hbb_common tecnovetti-operator.patch
+          echo "=== confirmar api-server embutido (login + auditoria) ==="
+          grep -n "api-server" libs/hbb_common/src/config.rs
+
       - name: Restore bridge files
         uses: actions/download-artifact@master
         with:
