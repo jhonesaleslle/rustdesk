@@ -1,5 +1,5 @@
 diff --git a/src/config.rs b/src/config.rs
-index 31811d4..9fbd034 100644
+index 31811d4..67d6d9b 100644
 --- a/src/config.rs
 +++ b/src/config.rs
 @@ -58,12 +58,18 @@ lazy_static::lazy_static! {
@@ -7,7 +7,7 @@ index 31811d4..9fbd034 100644
      pub static ref PROD_RENDEZVOUS_SERVER: RwLock<String> = RwLock::new("".to_owned());
      pub static ref EXE_RENDEZVOUS_SERVER: RwLock<String> = Default::default();
 -    pub static ref APP_NAME: RwLock<String> = RwLock::new("RustDesk".to_owned());
-+    pub static ref APP_NAME: RwLock<String> = RwLock::new("TecnoAssist".to_owned());
++    pub static ref APP_NAME: RwLock<String> = RwLock::new("TecnoAssist Client".to_owned());
      static ref KEY_PAIR: Mutex<Option<KeyPair>> = Default::default();
      static ref USER_DEFAULT_CONFIG: RwLock<(UserDefaultConfig, Instant)> = RwLock::new((UserDefaultConfig::load(), Instant::now()));
      pub static ref NEW_STORED_PEER_CONFIG: Mutex<HashSet<String>> = Default::default();

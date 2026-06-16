@@ -2360,7 +2360,7 @@ class _AboutState extends State<_About> {
       final scrollController = ScrollController();
       return SingleChildScrollView(
         controller: scrollController,
-        child: _Card(title: 'Sobre o TecnoAssist', children: [
+        child: _Card(title: 'Sobre o TecnoAssist Client', children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
