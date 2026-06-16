@@ -3918,20 +3918,9 @@ void earlyAssert() {
 }
 
 void checkUpdate() {
-  if (!isWeb) {
-    if (!bind.isCustomClient()) {
-      platformFFI.registerEventHandler(
-          kCheckSoftwareUpdateFinish, kCheckSoftwareUpdateFinish,
-          (Map<String, dynamic> evt) async {
-        if (evt['url'] is String) {
-          stateGlobal.updateUrl.value = evt['url'];
-        }
-      });
-      Timer(const Duration(seconds: 1), () async {
-        bind.mainGetSoftwareUpdateUrl();
-      });
-    }
-  }
+  // Tecnovetti: white-label — não checa atualização. Evita o card de update
+  // (que apontaria para releases do RustDesk) e qualquer contato com o
+  // servidor de versões do RustDesk. updateUrl permanece vazio.
 }
 
 // https://github.com/flutter/flutter/issues/153560#issuecomment-2497160535
