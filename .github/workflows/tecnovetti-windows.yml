@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       apply_patch:
-        description: "Aplicar tecnovetti.patch base (servidor+key+approve-mode)?"
+        description: "Aplicar patches Tecnovetti (servidor+key+approve-mode+variante)? Deixe LIGADO p/ builds reais; só desligue p/ um build limpo upstream de teste."
         type: boolean
-        default: false
+        default: true
       variant:
         description: "Variante: client (portátil puro), client-installable (igual o client + botão Instalar) ou operator (UI completa)"
         type: choice
@@ -98,6 +98,34 @@ jobs:
           git apply -v --directory=libs/hbb_common tecnovetti-operator.patch
           echo "=== confirmar api-server embutido (login + auditoria) ==="
           grep -n "api-server" libs/hbb_common/src/config.rs
+
+      # >>> GUARDA: garante que a config patchada bate com a variante escolhida.
+      #     Sem isto, um run com apply_patch desligado (ou patch que não pegou)
+      #     produziria um exe com UI COMPLETA sem avisar. Aqui o build FALHA cedo. <<<
+      - name: Verify variant config (fail-fast)
+        if: ${{ inputs.apply_patch }}
+        shell: bash
+        run: |
+          cfg=libs/hbb_common/src/config.rs
+          echo "=== marcadores em $cfg (variant=${{ inputs.variant }}) ==="
+          grep -n "remoto.tecnovetti.cloud\|conn-type\|allow-install\|api-server" "$cfg" || true
+          # base (todas): servidor embutido
+          grep -q 'remoto.tecnovetti.cloud' "$cfg" || { echo "ERRO: base patch não aplicou (sem servidor Tecnovetti)"; exit 1; }
+          case "${{ inputs.variant }}" in
+            client)
+              grep -q '"conn-type".to_owned(), "incoming"' "$cfg" || { echo "ERRO: client sem conn-type=incoming (UI NÃO ficaria enxuta)"; exit 1; }
+              grep -q '"allow-install"' "$cfg" && { echo "ERRO: client NÃO deveria ter allow-install"; exit 1; } || true
+              ;;
+            client-installable)
+              grep -q '"conn-type".to_owned(), "incoming"' "$cfg" || { echo "ERRO: client-installable sem conn-type=incoming (UI NÃO ficaria enxuta)"; exit 1; }
+              grep -q '"allow-install".to_owned(), "Y"' "$cfg" || { echo "ERRO: client-installable sem allow-install=Y (botão Instalar não apareceria)"; exit 1; }
+              ;;
+            operator)
+              grep -q '"api-server"' "$cfg" || { echo "ERRO: operator sem api-server embutido"; exit 1; }
+              grep -q '"conn-type"' "$cfg" && { echo "ERRO: operator NÃO deveria ser incoming-only"; exit 1; } || true
+              ;;
+          esac
+          echo "OK: config bate com a variante ${{ inputs.variant }}"
 
       - name: Restore bridge files
         uses: actions/download-artifact@master
@@ -190,7 +218,7 @@ jobs:
       - name: Upload unsigned folder
         uses: actions/upload-artifact@master
         with:
-          name: tecnoassist-unsigned-windows-x86_64
+          name: tecnoassist-${{ inputs.variant }}-unsigned-windows-x86_64
           path: rustdesk
 
       # Artefato 2: o .exe portátil único (o que você distribui)
@@ -203,10 +231,10 @@ jobs:
           python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/tecnoassist.exe
           popd
           mkdir -p ./SignOutput
-          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/TecnoAssist-${{ env.VERSION }}-x86_64.exe
+          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/TecnoAssist-${{ env.VERSION }}-${{ inputs.variant }}-x86_64.exe
 
       - name: Upload portable exe
         uses: actions/upload-artifact@master
         with:
-          name: tecnoassist-portable-windows-x86_64
-          path: ./SignOutput/TecnoAssist-${{ env.VERSION }}-x86_64.exe
+          name: tecnoassist-${{ inputs.variant }}-portable-windows-x86_64
+          path: ./SignOutput/TecnoAssist-${{ env.VERSION }}-${{ inputs.variant }}-x86_64.exe
