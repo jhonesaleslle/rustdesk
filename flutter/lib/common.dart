@@ -3850,6 +3850,15 @@ bool get isCustomClient {
 // nele de qualquer forma.
 bool get isTecnoOperator => !bind.isIncomingOnly();
 
+// Tecnovetti: terceira variante "client-installable". É IGUAL ao cliente
+// (incoming-only, UI enxuta, ID+senha temporária, marca Tecnovetti) — a ÚNICA
+// diferença é que o botão "Instalar" fica disponível. O sinal vem do
+// HARD_SETTING `allow-install=Y` (tecnovetti-client-installable.patch), lido
+// aqui em build-time. O cliente "puro" não tem esse hard setting, então o
+// botão continua escondido nele.
+bool get isTecnoInstallable =>
+    bind.mainGetHardOption(key: "allow-install") == "Y";
+
 get defaultOptionLang => isCustomClient ? 'default' : '';
 get defaultOptionTheme => isCustomClient ? 'system' : '';
 get defaultOptionYes => isCustomClient ? 'Y' : '';

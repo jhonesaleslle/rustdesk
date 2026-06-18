@@ -469,10 +469,12 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     }
 
     if (isWindows && !bind.isDisableInstallation()) {
-      // Tecnovetti: o card "Instalar" volta SÓ no OPERADOR (queremos instalado,
-      // inicia com Windows, sempre disponível pros técnicos). No CLIENTE
-      // (incoming-only) continua portátil — nunca instala.
-      if (isTecnoOperator && !bind.mainIsInstalled()) {
+      // Tecnovetti: o card "Instalar" aparece no OPERADOR (queremos instalado,
+      // inicia com Windows, sempre disponível pros técnicos) e na variante
+      // CLIENT-INSTALLABLE (cliente enxuto, mas com a opção de instalar). No
+      // CLIENTE "puro" (incoming-only sem allow-install) continua portátil —
+      // nunca instala.
+      if ((isTecnoOperator || isTecnoInstallable) && !bind.mainIsInstalled()) {
         return buildInstallCard(
             "", bind.isOutgoingOnly() ? "" : "install_tip", "Install",
             () async {

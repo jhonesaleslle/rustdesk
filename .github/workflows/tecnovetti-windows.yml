@@ -13,10 +13,11 @@ on:
         type: boolean
         default: false
       variant:
-        description: "Variante: client (incoming-only, UI enxuta) ou operator (UI completa)"
+        description: "Variante: client (portátil puro), client-installable (igual o client + botão Instalar) ou operator (UI completa)"
         type: choice
         options:
           - client
+          - client-installable
           - operator
         default: client
 
@@ -78,6 +79,16 @@ jobs:
           git apply -v --directory=libs/hbb_common tecnovetti-client.patch
           echo "=== confirmar conn-type=incoming (UI enxuta do cliente) ==="
           grep -n "conn-type" libs/hbb_common/src/config.rs
+
+      # >>> Patch do CLIENT-INSTALLABLE — igual o client (incoming-only) + allow-install=Y
+      #     (libera o botão Instalar). Só no variant=client-installable, em cima do base. <<<
+      - name: Apply Tecnovetti client-installable patch (incoming-only + allow-install)
+        if: ${{ inputs.apply_patch && inputs.variant == 'client-installable' }}
+        shell: bash
+        run: |
+          git apply -v --directory=libs/hbb_common tecnovetti-client-installable.patch
+          echo "=== confirmar conn-type=incoming + allow-install=Y ==="
+          grep -n "conn-type\|allow-install" libs/hbb_common/src/config.rs
 
       # >>> Patch do OPERADOR (api-server embutido) — só no variant=operator, em cima do base <<<
       - name: Apply Tecnovetti operator patch (api-server)
