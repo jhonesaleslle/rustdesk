@@ -122,10 +122,12 @@ jobs:
             client-installable)
               grep -q '"conn-type".to_owned(), "incoming"' "$cfg" || { echo "ERRO: client-installable sem conn-type=incoming (UI NÃO ficaria enxuta)"; exit 1; }
               grep -q '"allow-install".to_owned(), "Y"' "$cfg" || { echo "ERRO: client-installable sem allow-install=Y (botão Instalar não apareceria)"; exit 1; }
-              # Variante instalável: APP_NAME PRECISA ser "TecnoAssist" (SEM espaço) p/ casar com o
-              # binário tecnoassist.exe. Com espaço o atalho/registro/serviço apontam p/ um exe que não
-              # existe (install não renomeia) -> atalho não abre + mainIsInstalled()=false.
-              grep -q 'APP_NAME: RwLock<String> = RwLock::new("TecnoAssist".to_owned())' "$cfg" || { echo "ERRO: client-installable com APP_NAME != \"TecnoAssist\" (espaço quebra atalho/serviço/detecção de instalado)"; exit 1; }
+              # Variante instalável: APP_NAME PRECISA ser "TecnoAssistClient" (junto, SEM espaço).
+              # O install renomeia o binário copiado p/ {app_name}.exe (tecnoassistclient.exe), então
+              # atalho/registro/serviço/is_installed casam. Espaço quebraria sc create/taskkill (sem
+              # aspas) e o nome do exe.
+              grep -q 'APP_NAME: RwLock<String> = RwLock::new("TecnoAssistClient".to_owned())' "$cfg" || { echo "ERRO: client-installable com APP_NAME != \"TecnoAssistClient\" (junto). Espaço quebra atalho/serviço/detecção de instalado"; exit 1; }
+              grep -q 'APP_NAME.*"TecnoAssist Client"' "$cfg" && { echo "ERRO: APP_NAME com ESPAÇO na installable (quebra install)"; exit 1; } || true
               ;;
             operator)
               grep -q '"api-server"' "$cfg" || { echo "ERRO: operator sem api-server embutido"; exit 1; }

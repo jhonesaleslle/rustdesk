@@ -1595,6 +1595,7 @@ copy /Y \"{tmp_path}\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\
 chcp 65001
 md \"{path}\"
 {copy_exe}
+{rename_exe}
 reg add {subkey} /f
 reg add {subkey} /f /v DisplayIcon /t REG_SZ /d \"{display_icon}\"
 reg add {subkey} /f /v DisplayName /t REG_SZ /d \"{app_name}\"
@@ -1632,6 +1633,12 @@ copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{path}\\\"
         sleep = if debug { "timeout 300" } else { "" },
         dels = if debug { "" } else { &dels },
         copy_exe = copy_exe_cmd(&src_exe, &exe, &path)?,
+        // Renomeia o binário copiado p/ {app_name}.exe. O install só faz XCOPY da pasta, então sem
+        // isto o exe instalado mantém o BINARY_NAME (tecnoassist.exe) e NÃO casa com o caminho que
+        // atalho/registro/serviço/is_installed derivam de APP_NAME -> atalho não abre + is_installed
+        // = false. No-op quando o binário já bate (ex.: operador APP_NAME=TecnoAssist). Igual ao
+        // update_me/MSI, que já renomeia.
+        rename_exe = rename_exe_cmd(&src_exe, &path)?,
         import_config = get_import_config(&exe),
     );
     run_cmds(cmds, debug, "install")?;
