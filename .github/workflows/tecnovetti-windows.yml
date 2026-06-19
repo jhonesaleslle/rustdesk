@@ -81,14 +81,17 @@ jobs:
           grep -n "conn-type" libs/hbb_common/src/config.rs
 
       # >>> Patch do CLIENT-INSTALLABLE — igual o client (incoming-only) + allow-install=Y
-      #     (libera o botão Instalar). Só no variant=client-installable, em cima do base. <<<
-      - name: Apply Tecnovetti client-installable patch (incoming-only + allow-install)
+      #     (libera o botão Instalar) + APP_NAME "TecnoAssist" (SEM espaço, como o operador):
+      #     o install Windows deriva o nome do exe/atalho/serviço de APP_NAME e NÃO renomeia o
+      #     binário copiado (tecnoassist.exe), então APP_NAME precisa casar com tecnoassist.exe.
+      #     Só no variant=client-installable, em cima do base. <<<
+      - name: Apply Tecnovetti client-installable patch (incoming-only + allow-install + APP_NAME sem espaço)
         if: ${{ inputs.apply_patch && inputs.variant == 'client-installable' }}
         shell: bash
         run: |
           git apply -v --directory=libs/hbb_common tecnovetti-client-installable.patch
-          echo "=== confirmar conn-type=incoming + allow-install=Y ==="
-          grep -n "conn-type\|allow-install" libs/hbb_common/src/config.rs
+          echo "=== confirmar APP_NAME=TecnoAssist + conn-type=incoming + allow-install=Y ==="
+          grep -n "APP_NAME\|conn-type\|allow-install" libs/hbb_common/src/config.rs
 
       # >>> Patch do OPERADOR (api-server embutido) — só no variant=operator, em cima do base <<<
       - name: Apply Tecnovetti operator patch (api-server)
@@ -119,10 +122,15 @@ jobs:
             client-installable)
               grep -q '"conn-type".to_owned(), "incoming"' "$cfg" || { echo "ERRO: client-installable sem conn-type=incoming (UI NÃO ficaria enxuta)"; exit 1; }
               grep -q '"allow-install".to_owned(), "Y"' "$cfg" || { echo "ERRO: client-installable sem allow-install=Y (botão Instalar não apareceria)"; exit 1; }
+              # Variante instalável: APP_NAME PRECISA ser "TecnoAssist" (SEM espaço) p/ casar com o
+              # binário tecnoassist.exe. Com espaço o atalho/registro/serviço apontam p/ um exe que não
+              # existe (install não renomeia) -> atalho não abre + mainIsInstalled()=false.
+              grep -q 'APP_NAME: RwLock<String> = RwLock::new("TecnoAssist".to_owned())' "$cfg" || { echo "ERRO: client-installable com APP_NAME != \"TecnoAssist\" (espaço quebra atalho/serviço/detecção de instalado)"; exit 1; }
               ;;
             operator)
               grep -q '"api-server"' "$cfg" || { echo "ERRO: operator sem api-server embutido"; exit 1; }
               grep -q '"conn-type"' "$cfg" && { echo "ERRO: operator NÃO deveria ser incoming-only"; exit 1; } || true
+              grep -q 'APP_NAME: RwLock<String> = RwLock::new("TecnoAssist".to_owned())' "$cfg" || { echo "ERRO: operator com APP_NAME != \"TecnoAssist\" (espaço quebra sc create/taskkill do serviço)"; exit 1; }
               ;;
           esac
           echo "OK: config bate com a variante ${{ inputs.variant }}"
