@@ -22,4 +22,4 @@ index 5ae9906..0434311 100644
 +    ]));
      pub static ref BUILTIN_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
  }
-
+ 
