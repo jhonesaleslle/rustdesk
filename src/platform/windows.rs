@@ -1442,6 +1442,18 @@ fn get_after_install(
     ", create_service=get_create_service(&exe))
 }
 
+// Tecnovetti: variante installable "sem segundo plano" (HARD_SETTING no-background=Y).
+// Quando ligado: instala normal (atalho/Program Files/lista de programas) mas NÃO cria o serviço
+// auto-start, NÃO põe a bandeja no Startup e NÃO sobe a bandeja pós-install. O servidor roda
+// in-process só enquanto a janela está aberta; fechar o app = sem acesso (modelo de segurança).
+#[inline]
+fn is_no_background_install() -> bool {
+    config::HARD_SETTINGS
+        .read()
+        .map(|h| h.get("no-background").map_or(false, |v| v == "Y"))
+        .unwrap_or(false)
+}
+
 pub fn install_me(options: &str, path: String, silent: bool, debug: bool) -> ResultType<()> {
     let uninstall_str = get_uninstall(false, false);
     let mut path = path.trim_end_matches('\\').to_owned();
@@ -1567,7 +1579,7 @@ if exist \"{tmp_path}\\{app_name} Tray.lnk\" del /f /q \"{tmp_path}\\{app_name} 
         Config::set_option("api-server".into(), lic.api);
     }
 
-    let tray_shortcuts = if config::is_outgoing_only() {
+    let tray_shortcuts = if config::is_outgoing_only() || is_no_background_install() {
         "".to_owned()
     } else {
         format!("
@@ -3449,7 +3461,10 @@ oLink.Save
 }
 
 fn get_import_config(exe: &str) -> String {
-    if config::is_outgoing_only() {
+    if config::is_outgoing_only() || is_no_background_install() {
+        // no-background: nem o serviço transitório de import-config. As configs de
+        // servidor/key/approve-mode são compiladas (OVERWRITE_SETTINGS), então o import
+        // não é necessário p/ o app funcionar.
         return "".to_string();
     }
     format!("
@@ -3466,7 +3481,8 @@ sc delete {app_name}
 }
 
 fn get_create_service(exe: &str) -> String {
-    if config::is_outgoing_only() {
+    if config::is_outgoing_only() || is_no_background_install() {
+        // Sem serviço auto-start: nada roda no boot nem como SYSTEM.
         return "".to_string();
     }
     let stop = Config::get_option("stop-service") == "Y";
@@ -3492,7 +3508,7 @@ fn run_after_run_cmds(silent: bool) {
             .creation_flags(winapi::um::winbase::CREATE_NO_WINDOW)
             .spawn());
     }
-    if Config::get_option("stop-service") != "Y" {
+    if Config::get_option("stop-service") != "Y" && !is_no_background_install() {
         allow_err!(std::process::Command::new(&exe).arg("--tray").spawn());
     }
     std::thread::sleep(std::time::Duration::from_millis(300));

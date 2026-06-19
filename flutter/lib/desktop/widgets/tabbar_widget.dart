@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show exit;
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -431,7 +432,21 @@ class _DesktopTabState extends State<DesktopTab>
 
   @override
   void onWindowClose() async {
-    mainWindowClose() async => await windowManager.hide();
+    mainWindowClose() async {
+      // Tecnovetti (installable sem segundo plano): X encerra TUDO em vez de
+      // esconder pra bandeja, matando o servidor in-process junto. Fechou = sem
+      // acesso. Demais variantes seguem escondendo pra bandeja.
+      if (isTecnoNoBackground) {
+        await windowManager.setPreventClose(false);
+        await windowManager.close();
+        // https://github.com/flutter/flutter/issues/66631
+        if (isWindows) {
+          exit(0);
+        }
+        return;
+      }
+      await windowManager.hide();
+    }
     notMainWindowClose(WindowController windowController) async {
       if (controller.length != 0) {
         debugPrint("close not empty multiwindow from taskbar");

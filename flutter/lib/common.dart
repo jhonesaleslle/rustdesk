@@ -3859,6 +3859,15 @@ bool get isTecnoOperator => !bind.isIncomingOnly();
 bool get isTecnoInstallable =>
     bind.mainGetHardOption(key: "allow-install") == "Y";
 
+// Tecnovetti: variante installable "sem segundo plano". Sinal de build-time via
+// HARD_SETTING `no-background=Y` (tecnovetti-client-installable.patch). Quando
+// ligado, fechar a janela (X) ENCERRA o processo inteiro em vez de esconder pra
+// bandeja — o servidor roda só enquanto a janela está aberta (segurança: cliente
+// fecha = ninguém entra). Casado no Rust: sem serviço auto-start nem bandeja no
+// boot (windows.rs is_no_background_install()).
+bool get isTecnoNoBackground =>
+    bind.mainGetHardOption(key: "no-background") == "Y";
+
 get defaultOptionLang => isCustomClient ? 'default' : '';
 get defaultOptionTheme => isCustomClient ? 'system' : '';
 get defaultOptionYes => isCustomClient ? 'Y' : '';
