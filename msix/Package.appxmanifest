@@ -2,12 +2,12 @@
 <!--
   Package.appxmanifest — TecnoAssist Client (variant=client) para a Microsoft Store.
 
-  ⚠️ ANTES DE SUBMETER: reserve o nome no Partner Center e substitua os 3 valores
-  abaixo (vêm da página "Identidade do aplicativo" do Partner Center). Se não
-  baterem EXATAMENTE, a Store rejeita o upload:
-    1. Identity/@Name              -> "Package/Identity/Name"  (ex.: 12345Tecnovetti.TecnoAssistClient)
-    2. Identity/@Publisher         -> "Package/Identity/Publisher" (ex.: CN=XXXXXXXX-XXXX-...)
-    3. Properties/PublisherDisplayName -> nome de editor exibido na conta
+  IDENTIDADE: preenchida com os valores EXATOS do Partner Center (app "TecnoAssistClient").
+  Se algum dia mudar a conta/app, atualize os 3 campos (têm que bater EXATO ou a
+  Store rejeita o upload):
+    1. Identity/@Name              -> "Package/Identity/Name"  (TECNOVETTIPRODUTOSESERVIC.35621E4DFC04C)
+    2. Identity/@Publisher         -> "Package/Identity/Publisher" (CN=C4451571-2D70-4D40-BA6C-84174B474C8C)
+    3. Properties/PublisherDisplayName -> nome de editor exibido na conta (TECNOVETTI PRODUTOS E SERVICOS)
 
   NOTAS TÉCNICAS:
   - É um app Win32 EMPACOTADO em full-trust (EntryPoint=Windows.FullTrustApplication).
@@ -27,14 +27,14 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="REPLACE.WITH.PARTNERCENTER.IdentityName"
-    Publisher="CN=REPLACE-WITH-PARTNERCENTER-Publisher"
+    Name="TECNOVETTIPRODUTOSESERVIC.35621E4DFC04C"
+    Publisher="CN=C4451571-2D70-4D40-BA6C-84174B474C8C"
     Version="1.4.6.0"
     ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>TecnoAssist</DisplayName>
-    <PublisherDisplayName>REPLACE_WITH_PARTNER_CENTER_PublisherDisplayName</PublisherDisplayName>
+    <DisplayName>TecnoAssistClient</DisplayName>
+    <PublisherDisplayName>TECNOVETTI PRODUTOS E SERVICOS</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -50,7 +50,7 @@
   <Applications>
     <Application Id="TecnoAssistClient" Executable="tecnoassist.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="TecnoAssist"
+        DisplayName="TecnoAssistClient"
         Description="Ferramenta de suporte remoto da Tecnovetti — o cliente recebe atendimento autorizado por senha temporária."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
