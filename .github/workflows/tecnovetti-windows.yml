@@ -20,6 +20,10 @@ on:
           - client-installable
           - operator
         default: client
+      selfsign_msix:
+        description: "Gerar TAMBÉM um MSIX self-signed p/ teste local? (só vale p/ variant=client; o MSIX da Store é sempre o não-assinado)"
+        type: boolean
+        default: false
 
 env:
   SCITER_RUST_VERSION: "1.75"
@@ -70,6 +74,19 @@ jobs:
           git apply -v --directory=libs/hbb_common tecnovetti.patch
           echo "=== confirmar que o OVERWRITE_SETTINGS foi alterado ==="
           grep -n "remoto.tecnovetti.cloud" libs/hbb_common/src/config.rs
+
+      # >>> Fix de visibilidade de crash (TODAS as variantes): cria o diretório de
+      #     log no Windows ANTES do flexi_logger abrir o arquivo. Sem isso, em
+      #     máquina limpa (primeiro launch) a pasta não existia, o logger falhava
+      #     em silêncio e nenhum erro de startup era gravado — exatamente o
+      #     "crash silencioso" visto na certificação da Store. <<<
+      - name: Apply Tecnovetti logdir fix patch (Windows crash visibility)
+        if: ${{ inputs.apply_patch }}
+        shell: bash
+        run: |
+          git apply -v --directory=libs/hbb_common tecnovetti-fix-logdir-windows.patch
+          echo "=== confirmar create_dir_all no log_path (Windows) ==="
+          grep -n "create_dir_all" libs/hbb_common/src/config.rs
 
       # >>> Patch do CLIENTE (incoming-only) — só no variant=client, em cima do base <<<
       - name: Apply Tecnovetti client patch (incoming-only)
@@ -225,6 +242,53 @@ jobs:
         with:
           name: topmostwindow-artifacts
           path: "./rustdesk"
+
+      # ===== MSIX p/ Microsoft Store — SÓ variant=client =====
+      # A Store assina e hospeda de graça (resolve o certificado). O client é
+      # incoming-only/sem serviço → cabe no container MSIX (que proíbe serviço).
+      # Empacota a pasta ./rustdesk já completa (exe + dlls + topmost). NÃO assina
+      # (a Microsoft assina ao publicar). Não toca client-installable nem operator.
+      - name: Set up Python for MSIX assets
+        if: ${{ inputs.variant == 'client' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Pillow (MSIX assets)
+        if: ${{ inputs.variant == 'client' }}
+        run: pip install Pillow
+
+      - name: Build MSIX (unsigned, p/ a Store)
+        if: ${{ inputs.variant == 'client' }}
+        shell: pwsh
+        run: |
+          ./msix/build_msix.ps1 `
+            -Layout (Resolve-Path ./rustdesk) `
+            -Manifest ./msix/Package.appxmanifest `
+            -AssetsScript ./msix/gen_msix_assets.py `
+            -SourceLogo ./res/icon.png `
+            -OutMsix (Join-Path $PWD "SignOutput/TecnoAssist-${{ env.VERSION }}-client-store-unsigned.msix")
+
+      - name: Build MSIX (self-signed, p/ teste local)
+        if: ${{ inputs.variant == 'client' && inputs.selfsign_msix }}
+        shell: pwsh
+        run: |
+          ./msix/build_msix.ps1 `
+            -Layout (Resolve-Path ./rustdesk) `
+            -Manifest ./msix/Package.appxmanifest `
+            -AssetsScript ./msix/gen_msix_assets.py `
+            -SourceLogo ./res/icon.png `
+            -OutMsix (Join-Path $PWD "SignOutput/TecnoAssist-${{ env.VERSION }}-client-selfsigned-TEST.msix") `
+            -SelfSign
+
+      - name: Upload MSIX
+        if: ${{ inputs.variant == 'client' }}
+        uses: actions/upload-artifact@master
+        with:
+          name: tecnoassist-client-msix
+          path: |
+            ./SignOutput/*.msix
+            ./SignOutput/*.cer
 
       # Artefato 1: a pasta ./rustdesk (tecnoassist.exe roda direto — bom p/ confirmar)
       - name: Upload unsigned folder

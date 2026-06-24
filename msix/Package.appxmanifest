@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Package.appxmanifest — TecnoAssist Client (variant=client) para a Microsoft Store.
+
+  ⚠️ ANTES DE SUBMETER: reserve o nome no Partner Center e substitua os 3 valores
+  abaixo (vêm da página "Identidade do aplicativo" do Partner Center). Se não
+  baterem EXATAMENTE, a Store rejeita o upload:
+    1. Identity/@Name              -> "Package/Identity/Name"  (ex.: 12345Tecnovetti.TecnoAssistClient)
+    2. Identity/@Publisher         -> "Package/Identity/Publisher" (ex.: CN=XXXXXXXX-XXXX-...)
+    3. Properties/PublisherDisplayName -> nome de editor exibido na conta
+
+  NOTAS TÉCNICAS:
+  - É um app Win32 EMPACOTADO em full-trust (EntryPoint=Windows.FullTrustApplication).
+    Por isso a ÚNICA capability necessária é runFullTrust — captura de tela (DXGI)
+    e injeção de input (SendInput) NÃO precisam de capability própria nesse modo
+    (as caps de captura/input são do mundo UWP e não gateiam o binário full-trust).
+  - runFullTrust é "restricted capability": exige justificativa na submissão da Store.
+  - Version DEVE ter 4 partes e a 4ª (revisão) DEVE ser 0 para a Store.
+  - O MSIX NÃO registra serviço Windows nem auto-start no boot — alinhado ao client
+    (incoming-only, sem serviço). Recursos que dependem de driver (virtual display
+    usbmmidd, privacy mode) e acesso a UAC/tela de bloqueio NÃO funcionam no pacote.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap rescap">
+
+  <Identity
+    Name="REPLACE.WITH.PARTNERCENTER.IdentityName"
+    Publisher="CN=REPLACE-WITH-PARTNERCENTER-Publisher"
+    Version="1.4.6.0"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>TecnoAssist</DisplayName>
+    <PublisherDisplayName>REPLACE_WITH_PARTNER_CENTER_PublisherDisplayName</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.22621.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="pt-BR" />
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Applications>
+    <Application Id="TecnoAssistClient" Executable="tecnoassist.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="TecnoAssist"
+        Description="Ferramenta de suporte remoto da Tecnovetti — o cliente recebe atendimento autorizado por senha temporária."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile
+          Square71x71Logo="Assets\Square71x71Logo.png"
+          Square310x310Logo="Assets\Square310x310Logo.png"
+          Wide310x150Logo="Assets\Wide310x150Logo.png" />
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

@@ -1,0 +1,17 @@
+diff --git a/src/config.rs b/src/config.rs
+index 31811d4..b9dd22a 100644
+--- a/src/config.rs
++++ b/src/config.rs
+@@ -716,6 +716,12 @@ impl Config {
+         if let Some(path) = Self::path("").parent() {
+             let mut path: PathBuf = path.into();
+             path.push("log");
++            // On Windows the log directory was never created before flexi_logger
++            // tried to open its file. On a clean machine (first launch) the folder
++            // does not exist yet, so the logger silently failed to start and no
++            // crash/startup error was ever written. Create it eagerly, like the
++            // Linux/Android branches above.
++            std::fs::create_dir_all(&path).ok();
+             return path;
+         }
+         "".into()
