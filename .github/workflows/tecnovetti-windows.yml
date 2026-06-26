@@ -66,14 +66,17 @@ jobs:
         with:
           submodules: recursive
 
-      # >>> Patch base (compartilhado client+operator) — só roda se apply_patch=true <<<
-      - name: Apply Tecnovetti base patch (server + key + approve-mode)
+      # >>> Patch base (TODAS as variantes) — server + key + approve-mode + api-server.
+      #     api-server vive no base (não mais só no operador): o conn-audit é postado
+      #     pela máquina CONTROLADA (alvo), que precisa do api-server p/ reportar quem
+      #     acessou. Sem ele, client/installable são cegos na auditoria. <<<
+      - name: Apply Tecnovetti base patch (server + key + approve-mode + api-server)
         if: ${{ inputs.apply_patch }}
         shell: bash
         run: |
           git apply -v --directory=libs/hbb_common tecnovetti.patch
-          echo "=== confirmar que o OVERWRITE_SETTINGS foi alterado ==="
-          grep -n "remoto.tecnovetti.cloud" libs/hbb_common/src/config.rs
+          echo "=== confirmar OVERWRITE_SETTINGS (servidor + api-server) ==="
+          grep -n "remoto.tecnovetti.cloud\|api-server" libs/hbb_common/src/config.rs
 
       # >>> Fix de visibilidade de crash (TODAS as variantes): cria o diretório de
       #     log no Windows ANTES do flexi_logger abrir o arquivo. Sem isso, em
@@ -111,14 +114,16 @@ jobs:
           echo "=== confirmar APP_NAME=TecnoAssistClient + conn-type=incoming + allow-install=Y + no-background=Y ==="
           grep -n "APP_NAME\|conn-type\|allow-install\|no-background" libs/hbb_common/src/config.rs
 
-      # >>> Patch do OPERADOR (api-server embutido) — só no variant=operator, em cima do base <<<
-      - name: Apply Tecnovetti operator patch (api-server)
+      # >>> Patch do OPERADOR — só APP_NAME "TecnoAssist" (sem espaço, p/ sc create/taskkill
+      #     do serviço). O api-server agora vem do base (todas as variantes reportam auditoria);
+      #     este patch NÃO mexe mais em api-server. Só no variant=operator, em cima do base. <<<
+      - name: Apply Tecnovetti operator patch (APP_NAME TecnoAssist; api-server vem do base)
         if: ${{ inputs.apply_patch && inputs.variant == 'operator' }}
         shell: bash
         run: |
           git apply -v --directory=libs/hbb_common tecnovetti-operator.patch
-          echo "=== confirmar api-server embutido (login + auditoria) ==="
-          grep -n "api-server" libs/hbb_common/src/config.rs
+          echo "=== confirmar APP_NAME=TecnoAssist + api-server (do base) ==="
+          grep -n "APP_NAME\|api-server" libs/hbb_common/src/config.rs
 
       # >>> GUARDA: garante que a config patchada bate com a variante escolhida.
       #     Sem isto, um run com apply_patch desligado (ou patch que não pegou)
@@ -132,6 +137,8 @@ jobs:
           grep -n "remoto.tecnovetti.cloud\|conn-type\|allow-install\|api-server" "$cfg" || true
           # base (todas): servidor embutido
           grep -q 'remoto.tecnovetti.cloud' "$cfg" || { echo "ERRO: base patch não aplicou (sem servidor Tecnovetti)"; exit 1; }
+          # base (todas): api-server embutido — alvo posta o conn-audit; sem isto a auditoria é cega
+          grep -q '"api-server".to_owned(), "https://remoto.tecnovetti.cloud".to_owned()' "$cfg" || { echo "ERRO: base patch sem api-server (clientes não reportariam auditoria)"; exit 1; }
           case "${{ inputs.variant }}" in
             client)
               grep -q '"conn-type".to_owned(), "incoming"' "$cfg" || { echo "ERRO: client sem conn-type=incoming (UI NÃO ficaria enxuta)"; exit 1; }
@@ -149,8 +156,11 @@ jobs:
               grep -q 'APP_NAME.*"TecnoAssist Client"' "$cfg" && { echo "ERRO: APP_NAME com ESPAÇO na installable (quebra install)"; exit 1; } || true
               ;;
             operator)
-              grep -q '"api-server"' "$cfg" || { echo "ERRO: operator sem api-server embutido"; exit 1; }
-              grep -q '"conn-type"' "$cfg" && { echo "ERRO: operator NÃO deveria ser incoming-only"; exit 1; } || true
+              # api-server já é garantido pela checagem base acima (forma estrita). Aqui só
+              # confirmamos que o operador NÃO é incoming-only. Usar a forma ESTRITA do
+              # HARD_SETTING: o config.rs pristine tem `.get("conn-type")` em is_incoming_only(),
+              # então um grep solto por '"conn-type"' daria falso-positivo e falharia o build.
+              grep -q '"conn-type".to_owned(), "incoming"' "$cfg" && { echo "ERRO: operator NÃO deveria ser incoming-only"; exit 1; } || true
               grep -q 'APP_NAME: RwLock<String> = RwLock::new("TecnoAssist".to_owned())' "$cfg" || { echo "ERRO: operator com APP_NAME != \"TecnoAssist\" (espaço quebra sc create/taskkill do serviço)"; exit 1; }
               ;;
           esac

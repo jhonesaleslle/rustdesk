@@ -2,7 +2,7 @@ diff --git a/src/config.rs b/src/config.rs
 index 31811d4..5ae9906 100644
 --- a/src/config.rs
 +++ b/src/config.rs
-@@ -58,12 +58,18 @@ lazy_static::lazy_static! {
+@@ -58,12 +58,19 @@ lazy_static::lazy_static! {
      static ref ONLINE: Mutex<HashMap<String, i64>> = Default::default();
      pub static ref PROD_RENDEZVOUS_SERVER: RwLock<String> = RwLock::new("".to_owned());
      pub static ref EXE_RENDEZVOUS_SERVER: RwLock<String> = Default::default();
@@ -19,6 +19,7 @@ index 31811d4..5ae9906 100644
 +        ("key".to_owned(), "DUJGieeZyZhh9y+G0YzKe8JsXhXtQ8zL5emIIx2+Gsk=".to_owned()),
 +        ("approve-mode".to_owned(), "password".to_owned()),
 +        ("verification-method".to_owned(), "use-temporary-password".to_owned()),
++        ("api-server".to_owned(), "https://remoto.tecnovetti.cloud".to_owned()),
 +    ]));
      pub static ref DEFAULT_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
      pub static ref OVERWRITE_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();

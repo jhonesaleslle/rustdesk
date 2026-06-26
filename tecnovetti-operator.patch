@@ -11,11 +11,3 @@ index 5ae9906..7faeb63 100644
      static ref KEY_PAIR: Mutex<Option<KeyPair>> = Default::default();
      static ref USER_DEFAULT_CONFIG: RwLock<(UserDefaultConfig, Instant)> = RwLock::new((UserDefaultConfig::load(), Instant::now()));
      pub static ref NEW_STORED_PEER_CONFIG: Mutex<HashSet<String>> = Default::default();
-@@ -69,6 +69,7 @@ lazy_static::lazy_static! {
-         ("key".to_owned(), "DUJGieeZyZhh9y+G0YzKe8JsXhXtQ8zL5emIIx2+Gsk=".to_owned()),
-         ("approve-mode".to_owned(), "password".to_owned()),
-         ("verification-method".to_owned(), "use-temporary-password".to_owned()),
-+        ("api-server".to_owned(), "https://remoto.tecnovetti.cloud".to_owned()),
-     ]));
-     pub static ref DEFAULT_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
-     pub static ref OVERWRITE_DISPLAY_SETTINGS: RwLock<HashMap<String, String>> = Default::default();
